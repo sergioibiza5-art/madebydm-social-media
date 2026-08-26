@@ -3,7 +3,9 @@ name: Import detailing support media
 on:
   push:
     paths:
-      - '.staging/detailing-support-01.b64'
+      - '.staging/detailing-support-01.part1'
+      - '.staging/detailing-support-01.part2'
+      - '.staging/detailing-support-01.part3'
       - '.github/workflows/import-detailing-support-image.yml'
 
 permissions:
@@ -16,20 +18,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Decode staged JPEG
+      - name: Reconstruct staged JPEG
         run: |
           mkdir -p media/detailing-support-2026-08
           python - <<'PY'
           from pathlib import Path
-          import base64, re
-          src = Path('.staging/detailing-support-01.b64').read_text()
-          clean = re.sub(r'[^A-Za-z0-9+/=]', '', src)
-          print(f'staged_chars={len(src)} clean_base64_chars={len(clean)} modulo4={len(clean)%4}')
-          clean += '=' * ((4 - len(clean) % 4) % 4)
-          data = base64.b64decode(clean, validate=False)
+          import base64, hashlib
+          parts = [Path(f'.staging/detailing-support-01.part{i}').read_text().strip() for i in (1,2,3)]
+          encoded = ''.join(parts)
+          print('part_lengths=', [len(p) for p in parts], 'total=', len(encoded), 'modulo4=', len(encoded) % 4)
+          data = base64.b64decode(encoded, validate=True)
           out = Path('media/detailing-support-2026-08/01-loaded.jpg')
           out.write_bytes(data)
-          print(f'decoded_bytes={len(data)} jpeg_header={data[:2].hex()} jpeg_tail={data[-2:].hex()}')
+          print('decoded_bytes=', len(data), 'jpeg_header=', data[:2].hex(), 'jpeg_tail=', data[-2:].hex(), 'sha256=', hashlib.sha256(data).hexdigest())
           if data[:2] != b'\xff\xd8' or data[-2:] != b'\xff\xd9':
               raise SystemExit('Decoded payload is not a complete JPEG')
           PY

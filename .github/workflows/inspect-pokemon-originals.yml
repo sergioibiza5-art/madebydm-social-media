@@ -1,0 +1,40 @@
+name: Inspect original Pokémon carousel JPEGs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/inspect-pokemon-originals.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow
+
+      - name: Inspect original JPEGs strictly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          folder = Path('media/2026-08-24-pokemon-chess')
+          files = sorted(folder.glob('*.jpg'))
+          if len(files) != 5:
+              raise SystemExit(f'Expected 5 original JPEGs, found {len(files)}')
+
+          for path in files:
+              raw = path.read_bytes()
+              with Image.open(path) as im:
+                  im.load()
+                  print(f'{path}: bytes={len(raw)} format={im.format} mode={im.mode} size={im.size}')
+          PY

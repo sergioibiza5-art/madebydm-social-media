@@ -19,9 +19,21 @@ jobs:
       - name: Decode staged JPEG
         run: |
           mkdir -p media/detailing-support-2026-08
-          base64 --decode .staging/detailing-support-01.b64 > media/detailing-support-2026-08/01-loaded.jpg
+          python - <<'PY'
+          from pathlib import Path
+          import base64, re
+          src = Path('.staging/detailing-support-01.b64').read_text()
+          clean = re.sub(r'[^A-Za-z0-9+/=]', '', src)
+          print(f'staged_chars={len(src)} clean_base64_chars={len(clean)} modulo4={len(clean)%4}')
+          clean += '=' * ((4 - len(clean) % 4) % 4)
+          data = base64.b64decode(clean, validate=False)
+          out = Path('media/detailing-support-2026-08/01-loaded.jpg')
+          out.write_bytes(data)
+          print(f'decoded_bytes={len(data)} jpeg_header={data[:2].hex()} jpeg_tail={data[-2:].hex()}')
+          if data[:2] != b'\xff\xd8' or data[-2:] != b'\xff\xd9':
+              raise SystemExit('Decoded payload is not a complete JPEG')
+          PY
           file media/detailing-support-2026-08/01-loaded.jpg
-          test "$(head -c 2 media/detailing-support-2026-08/01-loaded.jpg | xxd -p)" = "ffd8"
 
       - name: Save imported media
         run: |

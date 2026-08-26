@@ -1,0 +1,204 @@
+{
+  "files": [
+    {
+      "before": {
+        "filename": "01-cover.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 17395
+      },
+      "after": {
+        "filename": "01-cover.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 23747
+      }
+    },
+    {
+      "before": {
+        "filename": "02-full-set.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 17395
+      },
+      "after": {
+        "filename": "02-full-set.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 23747
+      }
+    },
+    {
+      "before": {
+        "filename": "03-top-view.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 17395
+      },
+      "after": {
+        "filename": "03-top-view.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 23747
+      }
+    },
+    {
+      "before": {
+        "filename": "04-side-view.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 17395
+      },
+      "after": {
+        "filename": "04-side-view.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 23747
+      }
+    },
+    {
+      "before": {
+        "filename": "05-clean-close.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 17395
+      },
+      "after": {
+        "filename": "05-clean-close.jpg",
+        "format": "JPEG",
+        "mode": "RGB",
+        "size": [
+          1080,
+          1350
+        ],
+        "progressive": false,
+        "icc_profile_present": false,
+        "exif_present": false,
+        "jfif_present": true,
+        "jfif_version": [
+          1,
+          1
+        ],
+        "density": null,
+        "bytes": 23747
+      }
+    }
+  ]
+}

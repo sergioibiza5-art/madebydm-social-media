@@ -21,20 +21,36 @@ jobs:
       - name: Install Pillow
         run: python -m pip install --disable-pip-version-check pillow
 
-      - name: Inspect original JPEGs strictly
+      - name: Measure recoverable original JPEG data
         run: |
           python - <<'PY'
           from pathlib import Path
-          from PIL import Image
+          import hashlib
+          from PIL import Image, ImageFile, ImageStat
 
+          ImageFile.LOAD_TRUNCATED_IMAGES = True
           folder = Path('media/2026-08-24-pokemon-chess')
           files = sorted(folder.glob('*.jpg'))
           if len(files) != 5:
               raise SystemExit(f'Expected 5 original JPEGs, found {len(files)}')
 
+          hashes = set()
           for path in files:
               raw = path.read_bytes()
               with Image.open(path) as im:
                   im.load()
-                  print(f'{path}: bytes={len(raw)} format={im.format} mode={im.mode} size={im.size}')
+                  rgb = im.convert('RGB')
+                  pixel_hash = hashlib.sha256(rgb.tobytes()).hexdigest()
+                  hashes.add(pixel_hash)
+                  stat = ImageStat.Stat(rgb)
+                  extrema = rgb.getextrema()
+                  print(
+                      f'{path}: file_bytes={len(raw)} size={rgb.size} '
+                      f'pixel_sha256={pixel_hash} mean={tuple(round(x,2) for x in stat.mean)} '
+                      f'extrema={extrema}'
+                  )
+
+          print(f'unique_pixel_hashes={len(hashes)} of {len(files)}')
+          if len(hashes) < len(files):
+              raise SystemExit('Recovered originals are not all visually distinct')
           PY

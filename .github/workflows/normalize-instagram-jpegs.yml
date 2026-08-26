@@ -24,11 +24,11 @@ jobs:
       - name: Install Pillow
         run: python -m pip install --disable-pip-version-check pillow
 
-      - name: Convert carousel images to baseline RGB JPEG
+      - name: Recover and convert carousel images to baseline RGB JPEG
         run: |
           python - <<'PY'
           from pathlib import Path
-          from PIL import Image, ImageOps
+          from PIL import Image, ImageOps, ImageFile
 
           folder = Path('media/pokemon-chess-2026-08')
           files = sorted(folder.glob('*.jpg'))
@@ -59,26 +59,45 @@ jobs:
                   i += length
               return None
 
+          ImageFile.LOAD_TRUNCATED_IMAGES = True
+          recovered = []
           for path in files:
               before = path.read_bytes()
               before_marker = sof_marker(before)
-              with Image.open(path) as im:
-                  im = ImageOps.exif_transpose(im).convert('RGB')
+              with Image.open(path) as source:
+                  source.load()
+                  im = ImageOps.exif_transpose(source).convert('RGB')
                   if im.size != (1080, 1350):
                       raise SystemExit(f'{path}: unexpected dimensions {im.size}; refusing to resize')
-                  im.save(
-                      path,
-                      format='JPEG',
-                      quality=95,
-                      optimize=True,
-                      progressive=False,
-                      subsampling=0,
-                  )
+                  recovered.append((path, im.copy(), before_marker, len(before)))
+
+          for path, im, before_marker, before_size in recovered:
+              im.save(
+                  path,
+                  format='JPEG',
+                  quality=95,
+                  optimize=True,
+                  progressive=False,
+                  subsampling=0,
+              )
+
               after = path.read_bytes()
               after_marker = sof_marker(after)
-              print(f'{path}: size=1080x1350 RGB SOF before=0x{before_marker:02X} after=0x{after_marker:02X}')
               if after_marker != 0xC0:
                   raise SystemExit(f'{path}: expected baseline SOF0 (0xC0), got {after_marker!r}')
+
+              ImageFile.LOAD_TRUNCATED_IMAGES = False
+              with Image.open(path) as verify:
+                  verify.load()
+                  if verify.mode != 'RGB' or verify.size != (1080, 1350):
+                      raise SystemExit(f'{path}: verification failed mode={verify.mode} size={verify.size}')
+              ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+              print(
+                  f'{path}: recovered OK | 1080x1350 RGB | '
+                  f'SOF 0x{before_marker:02X}->0x{after_marker:02X} | '
+                  f'bytes {before_size}->{len(after)}'
+              )
           PY
 
       - name: Commit normalized JPEGs
@@ -90,5 +109,5 @@ jobs:
             echo "No image changes"
             exit 0
           fi
-          git commit -m "fix: normalize Instagram carousel JPEGs to baseline"
+          git commit -m "fix: recover Instagram carousel JPEGs as baseline"
           git push

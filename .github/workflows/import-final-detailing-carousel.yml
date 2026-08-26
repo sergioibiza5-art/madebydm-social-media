@@ -1,0 +1,56 @@
+name: Import final detailing support carousel
+
+on:
+  push:
+    paths:
+      - '.staging/final-support-carousel/**'
+      - '.github/workflows/import-final-detailing-carousel.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct final carousel media
+        run: |
+          set -euo pipefail
+          mkdir -p media/detailing-support-final-2026-08
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, tarfile
+          parts = sorted(Path('.staging/final-support-carousel').glob('part*'))
+          if not parts:
+              raise SystemExit('No staged carousel parts found')
+          encoded = ''.join(p.read_text().strip() for p in parts)
+          data = base64.b64decode(encoded, validate=True)
+          archive = Path('/tmp/detailing-support-final.tar.gz')
+          archive.write_bytes(data)
+          print('parts=', len(parts), 'encoded=', len(encoded), 'archive_bytes=', len(data), 'sha256=', hashlib.sha256(data).hexdigest())
+          with tarfile.open(archive, 'r:gz') as tf:
+              tf.extractall('media/detailing-support-final-2026-08')
+          expected = ['01-cover.jpg','02-compact.jpg','03-ready.jpg','04-cta.jpg']
+          for name in expected:
+              p = Path('media/detailing-support-final-2026-08') / name
+              blob = p.read_bytes()
+              if blob[:2] != b'\xff\xd8' or blob[-2:] != b'\xff\xd9':
+                  raise SystemExit(f'{name} is not a complete JPEG')
+              print(name, len(blob), hashlib.sha256(blob).hexdigest())
+          PY
+          file media/detailing-support-final-2026-08/*.jpg
+
+      - name: Save final carousel media
+        run: |
+          git config user.name "sergioibiza5-art"
+          git config user.email "sergioibiza5-art@users.noreply.github.com"
+          git add media/detailing-support-final-2026-08/*.jpg
+          if git diff --cached --quiet; then
+            echo "No media changes"
+            exit 0
+          fi
+          git commit -m "media: add final detailing support carousel"
+          git push

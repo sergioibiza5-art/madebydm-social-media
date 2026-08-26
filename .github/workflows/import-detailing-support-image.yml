@@ -1,0 +1,36 @@
+name: Import detailing support media
+
+on:
+  push:
+    paths:
+      - '.staging/detailing-support-01.b64'
+      - '.github/workflows/import-detailing-support-image.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decode staged JPEG
+        run: |
+          mkdir -p media/detailing-support-2026-08
+          base64 --decode .staging/detailing-support-01.b64 > media/detailing-support-2026-08/01-loaded.jpg
+          file media/detailing-support-2026-08/01-loaded.jpg
+          test "$(head -c 2 media/detailing-support-2026-08/01-loaded.jpg | xxd -p)" = "ffd8"
+
+      - name: Save imported media
+        run: |
+          git config user.name "sergioibiza5-art"
+          git config user.email "sergioibiza5-art@users.noreply.github.com"
+          git add media/detailing-support-2026-08/01-loaded.jpg
+          if git diff --cached --quiet; then
+            echo "No media changes"
+            exit 0
+          fi
+          git commit -m "media: add detailing support hero image"
+          git push
